@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Precificador de Planos — Grupo Limoeiro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green: #C3E535;
+    --green-dark: #a8c92a;
+    --bg: #0d0d0d;
+    --card: #1a1a1a;
+    --card2: #222;
+    --border: #2e2e2e;
+    --border2: #3a3a3a;
+    --text: #ffffff;
+    --muted: #888888;
+    --muted2: #555555;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: #000;
+    border-bottom: 2px solid var(--green);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    gap: 16px;
+  }
+  .logo-area { display: flex; align-items: center; gap: 16px; }
+  .header-divider {
+    width: 1px;
+    height: 32px;
+    background: #2e2e2e;
+    flex-shrink: 0;
+  }
+  .header-title {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: #cccccc;
+    white-space: nowrap;
+  }
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #888;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+  }
+  .header-right .dot {
+    width: 10px;
+    height: 10px;
+    background: var(--green);
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* ─── LAYOUT ─── */
+  .main-layout { display: flex; min-height: calc(100vh - 70px); }
+  .content-area { flex: 1; padding: 32px 28px; overflow-x: hidden; }
+  .sidebar {
+    width: 310px;
+    flex-shrink: 0;
+    background: #0a0a0a;
+    border-left: 1px solid var(--border);
+    padding: 24px 20px;
+    position: sticky;
+    top: 70px;
+    height: calc(100vh - 70px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  /* ─── SECTION LABEL ─── */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* ─── CLIENT SECTION ─── */
+  .client-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    margin-bottom: 28px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  .field label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+  .field input, .field textarea {
+    width: 100%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 13px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--green); }
+  .field input::placeholder { color: var(--muted2); }
+
+  /* ─── PLAN CARDS ─── */
+  .plans-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .plan-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .plan-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  .plan-card:hover { border-color: var(--muted2); }
+  .plan-card.selected { border-color: var(--green); background: #141d00; }
+  .plan-card.selected::before { background: var(--green); }
+
+  .pc-label { font-size: 9px; letter-spacing: 2px; color: var(--muted); text-transform: uppercase; margin-bottom: 3px; }
+  .pc-name { font-size: 30px; font-weight: 900; color: var(--green); letter-spacing: -1px; line-height: 1; margin-bottom: 5px; }
+  .pc-sub { font-size: 8.5px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+  .pc-freq { font-size: 10px; color: var(--muted); margin-bottom: 2px; }
+  .pc-6x { font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .pc-price { font-size: 26px; font-weight: 900; color: var(--green); letter-spacing: -1px; line-height: 1; }
+  .pc-total {
+    font-size: 10px; color: var(--muted);
+    background: #111; border-radius: 20px;
+    padding: 3px 10px; display: inline-block; margin-top: 10px;
+  }
+  .pc-check {
+    position: absolute; top: 10px; right: 10px;
+    width: 20px; height: 20px;
+    background: var(--green); border-radius: 50%;
+    display: none; align-items: center; justify-content: center;
+    font-size: 11px; color: #000; font-weight: 900;
+  }
+  .plan-card.selected .pc-check { display: flex; }
+
+  /* ─── ITEMS SECTION ─── */
+  .items-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 28px;
+  }
+  .items-box-header {
+    background: #111;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .items-box-header h3 { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; }
+  .items-box-note { font-size: 11px; color: var(--muted); }
+
+  .cat-block { padding: 0; border-bottom: 1px solid var(--border); }
+  .cat-block:last-child { border-bottom: none; }
+  .cat-title {
+    font-size: 9px; letter-spacing: 2.5px; color: var(--green);
+    text-transform: uppercase; font-weight: 800;
+    padding: 12px 20px 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .cat-toggle-btn {
+    font-size: 9px; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--muted); background: none; border: none; cursor: pointer;
+    padding: 2px 6px; border-radius: 4px;
+    transition: color 0.2s;
+  }
+  .cat-toggle-btn:hover { color: var(--text); }
+
+  .item-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 9px 20px;
+    border-top: 1px solid #1e1e1e;
+    transition: opacity 0.2s, background 0.15s;
+  }
+  .item-row:hover { background: #1e1e1e; }
+  .item-row.unchecked { opacity: 0.45; }
+
+  .item-check {
+    width: 16px; height: 16px;
+    accent-color: var(--green);
+    cursor: pointer; flex-shrink: 0;
+  }
+  .item-name { flex: 1; font-size: 13px; line-height: 1.4; }
+  .item-name small { display: block; color: var(--muted); font-size: 11px; margin-top: 1px; }
+  .item-price-wrap { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .price-prefix { font-size: 11px; color: var(--muted); }
+  .item-price-input {
+    width: 90px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px;
+    color: var(--green);
+    font-size: 13px;
+    font-weight: 700;
+    outline: none;
+    text-align: right;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+  .item-price-input:focus { border-color: var(--green); }
+  .item-price-input:disabled { color: var(--muted2); cursor: not-allowed; }
+  .item-price-input::placeholder { color: var(--muted2); font-weight: 400; }
+
+  /* ─── ADDONS ─── */
+  .addons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .addon-card {
+    background: var(--card);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 14px;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .addon-card.active { border-color: var(--green); background: #141d00; }
+  .addon-info { flex: 1; min-width: 0; }
+  .addon-name { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .addon-note { font-size: 10px; color: var(--muted); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .addon-price-label { font-size: 13px; font-weight: 800; color: var(--green); }
+  .addon-qty { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .qty-btn {
+    background: var(--card2); border: 1px solid var(--border);
+    color: var(--text); width: 26px; height: 26px;
+    border-radius: 5px; cursor: pointer; font-size: 16px; line-height: 1;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s; user-select: none;
+  }
+  .qty-btn:hover { background: #333; }
+  .qty-val { font-size: 14px; font-weight: 700; min-width: 18px; text-align: center; }
+
+  /* ─── SIDEBAR ─── */
+  .sidebar-title {
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 18px;
+    padding-bottom: 12px; border-bottom: 1px solid var(--border);
+  }
+  .sb-plan-badge {
+    background: #141d00; border: 1px solid var(--green);
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;
+    display: none;
+  }
+  .sb-plan-badge.show { display: block; }
+  .sb-plan-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+  .sb-plan-name { font-size: 20px; font-weight: 900; color: var(--green); line-height: 1.1; }
+  .sb-plan-sub { font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  .sb-items { flex: 1; overflow-y: auto; margin-bottom: 0; }
+  .sb-item {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 8px; padding: 4px 0; font-size: 11px;
+  }
+  .sb-item .si-name { flex: 1; color: var(--muted); line-height: 1.3; }
+  .sb-item .si-val { color: var(--text); font-weight: 600; white-space: nowrap; }
+  .sb-item.addon-line .si-name { color: var(--muted2); }
+  .sb-item.addon-line .si-tag {
+    font-size: 8px; color: var(--green); background: #141d00;
+    border: 1px solid var(--green); border-radius: 3px;
+    padding: 0 4px; letter-spacing: 0.5px;
+    display: inline-block; margin-left: 4px;
+  }
+
+  .sb-divider { border: none; border-top: 1px solid var(--border); margin: 14px 0; }
+
+  .sb-total-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    margin-bottom: 8px;
+  }
+  .sb-total-label { font-size: 10px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); }
+  .sb-total-val { font-size: 22px; font-weight: 900; color: var(--green); }
+  .sb-semestral-val { font-size: 14px; font-weight: 700; color: var(--text); }
+
+  .sb-grand {
+    background: #141d00; border: 1px solid var(--green);
+    border-radius: 8px; padding: 12px 14px; margin-bottom: 16px;
+  }
+  .sb-grand-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); margin-bottom: 4px; }
+  .sb-grand-val { font-size: 28px; font-weight: 900; color: var(--green); line-height: 1; }
+  .sb-grand-sem { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .sb-note { font-size: 10px; color: var(--muted2); text-align: center; line-height: 1.5; margin-bottom: 14px; }
+
+  .btn {
+    display: block; width: 100%;
+    padding: 13px; border-radius: 8px;
+    font-size: 12px; font-weight: 800;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer; border: none;
+    transition: all 0.18s; margin-bottom: 8px;
+    text-align: center; text-decoration: none;
+  }
+  .btn-primary { background: var(--green); color: #000; }
+  .btn-primary:hover { background: #d4f240; }
+  .btn-outline {
+    background: transparent; color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--muted2); color: var(--text); }
+
+  .empty-msg { color: var(--muted); font-size: 12px; text-align: center; padding: 16px 0; }
+
+  /* ─── PRINT ─── */
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display: none !important; }
+    .header { position: static; }
+    .main-layout { display: block; }
+    .sidebar { display: none; }
+    .content-area { padding: 20px; }
+    .plans-grid { display: none; }
+    #itemsSection { display: block !important; }
+    #addonsWrapper { display: block !important; }
+    body { background: white !important; color: #000 !important; }
+    .items-box { border-color: #ccc; background: #fff; }
+    .items-box-header { background: #f0f0f0; }
+    .cat-title { color: #333 !important; }
+    .item-row { border-color: #eee; }
+    .item-row.unchecked { display: none; }
+    .item-price-input { background: transparent; border: none; color: #000 !important; font-weight: 700; }
+    .print-summary { display: block !important; }
+  }
+
+  .print-summary {
+    display: none;
+    border: 2px solid #000;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 24px;
+    page-break-inside: avoid;
+  }
+  .print-summary h2 { font-size: 18px; margin-bottom: 12px; }
+  .ps-row { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 6px 0; font-size: 13px; }
+  .ps-total { font-size: 20px; font-weight: 900; margin-top: 12px; }
+
+  /* ─── SCROLLBAR ─── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 900px) {
+    .main-layout { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; position: static; border-left: none; border-top: 1px solid var(--border); }
+    .plans-grid { grid-template-columns: 1fr; }
+    .client-section { grid-template-columns: 1fr; }
+    .addons-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════ HEADER -->
+<header class="header no-print">
+  <div class="logo-area">
+    <img src="data:image/png;base64,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" alt="Grupo Limoeiro" style="height:46px;display:block;">
+    <div class="header-divider"></div>
+    <div class="header-title">Precificador Comercial</div>
+  </div>
+  <div class="header-right">
+    <div class="dot"></div>
+    Interno
+  </div>
+</header>
+
+<!-- ═══════════════════════════════════════════ MAIN LAYOUT -->
+<div class="main-layout">
+
+  <!-- ─── CONTENT AREA ─── -->
+  <div class="content-area">
+
+    <!-- CLIENT INFO -->
+    <div class="section-label no-print">Dados do Orçamento</div>
+    <div class="client-section no-print">
+      <div class="field">
+        <label>Nome do Cliente / Empresa</label>
+        <input type="text" id="clientName" placeholder="Ex: Empresa ABC Ltda">
+      </div>
+      <div class="field">
+        <label>Responsável Comercial</label>
+        <input type="text" id="responsible" placeholder="Ex: João Borges">
+      </div>
+      <div class="field">
+        <label>Observações</label>
+        <input type="text" id="obs" placeholder="Notas internas sobre o orçamento">
+      </div>
+      <div class="field">
+        <label>Validade do Orçamento</label>
+        <input type="text" id="validity" value="7 dias" placeholder="Ex: 15 dias">
+      </div>
+    </div>
+
+    <!-- PLAN SELECTION -->
+    <div class="section-label no-print">Selecionar Plano Base</div>
+    <div class="plans-grid no-print">
+      <div class="plan-card" id="card-start" onclick="selectPlan('start')">
+        <div class="pc-check">✓</div>
+        <div class="pc-label">Plano</div>
+        <div class="pc-name">START</div>
+        <div class="pc-sub">Presença Digital</div>
+        <div class="pc-freq">Valor Semestral</div>
+        <div class="pc-6x">6×</div>
+        <div class="pc-price">R$ 3.080</div>
+        <div class="pc-total">R$ 18.480 — 6 meses</div>
+      </div>
+      <div class="plan-card" id="card-gestao" onclick="selectPlan('gestao')">
+        <div class="pc-check">✓</div>
+        <div class="pc-label">Plano</div>
+        <div class="pc-name">GESTÃO</div>
+        <div class="pc-sub">Presença Figital</div>
+        <div class="pc-freq">Valor Semestral</div>
+        <div class="pc-6x">6×</div>
+        <div class="pc-price">R$ 4.950</div>
+        <div class="pc-total">R$ 29.700 — 6 meses</div>
+      </div>
+      <div class="plan-card" id="card-supra" onclick="selectPlan('supra')">
+        <div class="pc-check">✓</div>
+        <div class="pc-label">Plano</div>
+        <div class="pc-name">SUPRA</div>
+        <div class="pc-sub">Plano Completo Suprassumo</div>
+        <div class="pc-freq">Valor Semestral</div>
+        <div class="pc-6x">6×</div>
+        <div class="pc-price">R$ 6.660</div>
+        <div class="pc-total">R$ 39.600 — 6 meses</div>
+      </div>
+    </div>
+
+    <!-- PLAN ITEMS -->
+    <div id="itemsSection" style="display:none">
+      <div class="section-label" id="itemsLabel">Personalizar Itens do Plano</div>
+      <div class="items-box" id="itemsBox"></div>
+    </div>
+
+    <!-- ADDONS -->
+    <div id="addonsWrapper">
+      <div class="section-label no-print" style="margin-top:8px">
+        Projetos Avulsos
+        <span style="color:var(--muted2);font-size:9px;margin-left:6px;letter-spacing:0;text-transform:none;font-weight:400">(clique + para adicionar ao orçamento)</span>
+      </div>
+      <div class="addons-grid no-print" id="addonsGrid"></div>
+    </div>
+
+    <!-- PRINT SUMMARY (only visible when printing) -->
+    <div class="print-summary" id="printSummary"></div>
+
+  </div><!-- /content-area -->
+
+  <!-- ─── SIDEBAR ─── -->
+  <div class="sidebar no-print">
+    <div class="sidebar-title">Resumo do Orçamento</div>
+
+    <div class="sb-plan-badge" id="sbPlanBadge">
+      <div class="sb-plan-label">Plano selecionado</div>
+      <div class="sb-plan-name" id="sbPlanName">—</div>
+      <div class="sb-plan-sub" id="sbPlanSub">—</div>
+    </div>
+
+    <div class="sb-items" id="sbItems">
+      <div class="empty-msg">Selecione um plano para começar</div>
+    </div>
+
+    <hr class="sb-divider">
+
+    <div class="sb-total-row">
+      <div class="sb-total-label">Total Mensal</div>
+      <div class="sb-total-val" id="totalMensal">R$ 0</div>
+    </div>
+    <div class="sb-total-row" style="margin-bottom:16px">
+      <div class="sb-total-label">Semestral (6×)</div>
+      <div class="sb-semestral-val" id="totalSemestral">R$ 0</div>
+    </div>
+
+    <div id="addonsLine" style="display:none">
+      <div class="sb-total-row">
+        <div class="sb-total-label">Projetos Avulsos</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text)" id="totalAddons">R$ 0</div>
+      </div>
+      <hr class="sb-divider">
+    </div>
+
+    <div class="sb-grand">
+      <div class="sb-grand-label">Total Geral (Mensal)</div>
+      <div class="sb-grand-val" id="totalGeral">R$ 0</div>
+      <div class="sb-grand-sem" id="totalGeralSem"></div>
+    </div>
+
+    <div class="sb-note" id="sbNote"></div>
+
+    <button class="btn btn-primary" onclick="gerarOrcamento()">⬇ Imprimir / Salvar PDF</button>
+    <button class="btn btn-outline" onclick="resetAll()">↺ Limpar Tudo</button>
+  </div>
+
+</div><!-- /main-layout -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════════════════════
+const PLANS = {
+  start: {
+    name: 'START',
+    sub: 'Presença Digital',
+    monthly: 3080,
+    semestral: 18480,
+    categories: [
+      { title: 'Comunicação Empresarial', items: [
+        { id:'s_wpp',   name:'Grupo de WhatsApp interno agência-empresa', price:0, note:'Canal de comunicação direto' },
+        { id:'s_link',  name:'Criação de LinkTree', price:100, note:'Link centralizado de informações da empresa' },
+        { id:'s_gmn',   name:'Google Meu Negócio — Identificação de melhorias', price:150, note:'Diagnóstico e sugestões (sem postagens inclusas)' },
+      ]},
+      { title: 'Presença Digital', items: [
+        { id:'s_rs',    name:'Gestão de até 2 Redes Sociais', price:300, note:'Facebook / Instagram / TikTok / YouTube Shorts / LinkedIn' },
+        { id:'s_ban',   name:'Site: Criação de novos Banners', price:200, note:'Atualização periódica de banners do site' },
+        { id:'s_tv',    name:'Artes para comunicação em TVs e Telões de LED', price:150 },
+        { id:'s_inf',   name:'Desenvolvimento de Campanhas com Influencers Locais', price:150 },
+        { id:'s_foto',  name:'Fotos para humanizar o Feed', price:180, note:'1 campanha fotográfica a cada 4 meses' },
+      ]},
+      { title: 'Campanhas e Quantificação Redes Sociais', items: [
+        { id:'s_posts', name:'Criação de até 10 Postagens Fixas mensais', price:900, note:'Entre carrosséis e posts individuais' },
+        { id:'s_vids',  name:'Roteiro, Gravação e Edição de até 5 Vídeos mensais', price:650, note:'Até 1m30s — Reels ou YouTube Shorts' },
+        { id:'s_camp',  name:'Campanha fixa de vendas mensal', price:250, note:'Ideia e criação em conjunto com o cliente' },
+        { id:'s_selo',  name:'Criação de Selos e Logotipos de campanhas', price:80 },
+      ]},
+    ]
+  },
+
+  gestao: {
+    name: 'GESTÃO',
+    sub: 'Presença Figital',
+    monthly: 4950,
+    semestral: 29700,
+    categories: [
+      { title: 'Comunicação Empresarial', items: [
+        { id:'g_wpp',   name:'Grupo de WhatsApp interno agência-empresa', price:0 },
+        { id:'g_link',  name:'Criação de LinkTree', price:100, note:'Link centralizado de informações' },
+        { id:'g_gmn',   name:'Google Meu Negócio — Identificação de melhorias', price:150, note:'Sem postagens' },
+        { id:'g_wpps',  name:'Identificação de ferramentas e plataformas para vendas via WhatsApp', price:100 },
+      ]},
+      { title: 'Presença Digital', items: [
+        { id:'g_rs',    name:'Gestão de até 3 Redes Sociais', price:400, note:'Facebook / Instagram / TikTok / YouTube Shorts / LinkedIn' },
+        { id:'g_ban',   name:'Site: Criação de novos Banners', price:150 },
+        { id:'g_tv',    name:'Artes para comunicação em TVs e Telões de LED', price:150 },
+        { id:'g_inf',   name:'Desenvolvimento de Campanhas com Influencers Locais', price:150 },
+        { id:'g_foto',  name:'Fotos para humanizar o Feed', price:180, note:'1 campanha a cada 4 meses' },
+        { id:'g_email', name:'Criação de E-mails MKT ou Cards para WhatsApp', price:200 },
+        { id:'g_eng',   name:'Acompanhamento do engajamento do público', price:150 },
+      ]},
+      { title: 'Campanhas e Quantificação Redes Sociais', items: [
+        { id:'g_posts', name:'Criação de até 14 Postagens Fixas mensais', price:1100, note:'Entre carrosséis e posts individuais' },
+        { id:'g_vids',  name:'Roteiro, Gravação e Edição de até 7 Vídeos mensais', price:850, note:'Até 1m30s — Reels ou YouTube Shorts' },
+        { id:'g_camp',  name:'Campanha fixa de vendas mensal', price:250, note:'Ideia e criação em conjunto com o cliente' },
+        { id:'g_selo',  name:'Criação de Selos e Logotipos de campanhas', price:80 },
+      ]},
+      { title: 'Presença Física Off-line', items: [
+        { id:'g_out',   name:'Criação de artes para Outdoor', price:150 },
+        { id:'g_pap',   name:'Material de Papelaria da empresa', price:150, note:'Panfletos, folders, folhetos, cardápios, catálogos' },
+        { id:'g_brin',  name:'Criação e desenvolvimento de Brindes', price:100 },
+        { id:'g_com',   name:'Roteiros para Comerciais de TV, Jingles para Rádio e Spots', price:150 },
+      ]},
+      { title: 'Ativações', items: [
+        { id:'g_atv',   name:'Criação de 1 ativação criativa a cada 3 meses', price:100, note:'Orçamento de terceiros não incluso nesta proposta' },
+        { id:'g_col',   name:'Collabs entre empresas parceiras da agência', price:100, note:'Para fomentar crescimento online' },
+      ]},
+      { title: 'Feiras e Eventos', items: [
+        { id:'g_frei',  name:'Reunião estratégica para definição das ações', price:100 },
+        { id:'g_facp',  name:'Acompanhamento de stand, ativações, degustações e materiais', price:120 },
+      ]},
+    ]
+  },
+
+  supra: {
+    name: 'SUPRA',
+    sub: 'Plano Completo Suprassumo',
+    monthly: 6660,
+    semestral: 39600,
+    categories: [
+      { title: 'Serviços de Consultoria', items: [
+        { id:'p_pes',   name:'Pesquisa sobre a empresa, soluções e reações do público consumidor', price:300 },
+        { id:'p_mid',   name:'Planejamento dos tipos de mídia que serão utilizados', price:150 },
+        { id:'p_feed',  name:'Análise de feedbacks dos clientes para decisão de linhas de ação', price:150 },
+        { id:'p_ocul',  name:'Cliente Oculto', price:200, note:'Visita e avaliação anônima da operação' },
+      ]},
+      { title: 'Planejamento Estratégico', items: [
+        { id:'p_plan',  name:'Plano Estratégico com Plano de Mídia', price:300 },
+        { id:'p_orc',   name:'Plano de orçamento com método 5W 2H', price:150 },
+      ]},
+      { title: 'Treinamentos', items: [
+        { id:'p_tr1',   name:'Identificação de dificuldades/motivação para Treinamento com Vendedores', price:200 },
+        { id:'p_tr2',   name:'Treinamento e Endomarketing', price:200 },
+      ]},
+      { title: 'Comunicação Empresarial', items: [
+        { id:'p_wpp',   name:'Grupo de WhatsApp interno agência-empresa', price:0 },
+        { id:'p_link',  name:'Criação de LinkTree', price:100, note:'Link centralizado de informações' },
+        { id:'p_gmn',   name:'Google Meu Negócio — Identificação de melhorias', price:150, note:'Sem postagens' },
+        { id:'p_wpps',  name:'Identificação de ferramentas e plataformas para vendas via WhatsApp', price:100 },
+      ]},
+      { title: 'Presença Digital', items: [
+        { id:'p_rs',    name:'Gestão de até 3 Redes Sociais', price:400, note:'Facebook / Instagram / TikTok / YouTube Shorts / LinkedIn' },
+        { id:'p_ban',   name:'Site: Criação de novos Banners', price:150 },
+        { id:'p_tv',    name:'Artes para comunicação em TVs e Telões de LED', price:150 },
+        { id:'p_inf',   name:'Desenvolvimento de Campanhas com Influencers Locais', price:150 },
+        { id:'p_foto',  name:'Fotos para humanizar o Feed', price:180, note:'1 campanha a cada 4 meses' },
+        { id:'p_email', name:'Criação de E-mails MKT ou Cards para WhatsApp', price:200 },
+        { id:'p_eng',   name:'Acompanhamento do engajamento do público', price:150 },
+      ]},
+      { title: 'Campanhas e Quantificação Redes Sociais', items: [
+        { id:'p_posts', name:'Criação de até 16 Postagens Fixas mensais', price:1300, note:'Entre carrosséis e posts individuais' },
+        { id:'p_vids',  name:'Roteiro, Gravação e Edição de até 7 Vídeos mensais', price:850, note:'Até 1m30s — Reels ou YouTube Shorts' },
+        { id:'p_camp',  name:'Campanha fixa de vendas mensal', price:250, note:'Ideia e criação em conjunto com o cliente' },
+        { id:'p_selo',  name:'Criação de Selos e Logotipos de campanhas', price:80 },
+      ]},
+      { title: 'Presença Física Off-line', items: [
+        { id:'p_out',   name:'Criação de artes para Outdoor', price:150 },
+        { id:'p_pap',   name:'Material de Papelaria da empresa', price:150, note:'Panfletos, folders, folhetos, cardápios, catálogos' },
+        { id:'p_brin',  name:'Criação e desenvolvimento de Brindes', price:100 },
+        { id:'p_com',   name:'Roteiros para Comerciais de TV, Jingles para Rádio e Spots', price:150 },
+      ]},
+      { title: 'Ativações', items: [
+        { id:'p_atv',   name:'Criação de 1 ativação criativa a cada 3 meses', price:100, note:'Orçamento de terceiros não incluso' },
+        { id:'p_col',   name:'Collabs entre empresas parceiras da agência', price:100, note:'Para fomentar crescimento online' },
+      ]},
+      { title: 'Feiras e Eventos', items: [
+        { id:'p_frei',  name:'Reunião estratégica para definição das ações', price:100 },
+        { id:'p_facp',  name:'Acompanhamento de stand, ativações, degustações e materiais', price:120 },
+      ]},
+    ]
+  }
+};
+
+const CATALOG = [
+  { id:'c_naming', name:'Naming',             note:'Criação de Nome de Produto ou Marca', price:2000 },
+  { id:'c_brand',  name:'Branding',            note:'Criação de Identidade Visual',         price:3000, priceMax:6500 },
+  { id:'c_land',   name:'Landing Page',         note:'Criação e design de página de captura', price:2500 },
+  { id:'c_site',   name:'Site Institucional',   note:'Criação de site completo — a partir de', price:4000 },
+  { id:'c_card',   name:'Cardápio',             note:'Criação de cardápio digital ou impresso', price:1500 },
+  { id:'c_vsl',    name:'Vídeo VSL',            note:'Até 5 minutos de duração',              price:2000 },
+  { id:'c_fprod',  name:'Fotos de Produção',    note:'Para conteúdo — até 40 unidades (studio, modelo, cenário)', price:600 },
+  { id:'c_still',  name:'Foto Still',           note:'Fundo branco — até 50 unidades',        price:1000 },
+  { id:'c_rot',    name:'Rótulos e Embalagens', note:'Por unidade',                           price:600 },
+  { id:'c_mot',    name:'Vídeo Motion',         note:'Animado — até 1m30s',                   price:500 },
+  { id:'c_mkit',   name:'Mídia Kit',            note:'10 páginas',                             price:800 },
+  { id:'c_flyer',  name:'Flyer / Folheto / Panfleto', note:'Criação de material impresso',   price:250 },
+  { id:'c_fold',   name:'Folder',               note:'Sem faca especial',                     price:800 },
+  { id:'c_pap',    name:'Papelaria Completa',   note:'Cartão, Papel Timbrado, Envelope, Pasta, Agenda, Brindes', price:1500 },
+  { id:'c_out',    name:'Outdoor',              note:'Criação de arte para outdoor',           price:800 },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════════
+let activePlan = null;
+let itemState  = {};   // id → {checked, price}
+let addonQty   = {};   // id → qty
+
+// ═══════════════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════════════
+(function init() {
+  const d = new Date();
+  document.getElementById('hdrDate').textContent =
+    d.toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+  renderAddons();
+})();
+
+// ═══════════════════════════════════════════════════════════════
+// SELECT PLAN
+// ═══════════════════════════════════════════════════════════════
+function selectPlan(key) {
+  activePlan = key;
+  const plan = PLANS[key];
+
+  // highlight cards
+  ['start','gestao','supra'].forEach(k => {
+    document.getElementById('card-'+k).classList.toggle('selected', k === key);
+  });
+
+  // init item states
+  itemState = {};
+  plan.categories.forEach(cat =>
+    cat.items.forEach(item =>
+      itemState[item.id] = { checked: true, price: item.price }
+    )
+  );
+
+  renderItems(plan);
+  recalc();
+
+  document.getElementById('itemsSection').style.display = 'block';
+  document.getElementById('itemsLabel').textContent = `Personalizar — Plano ${plan.name}`;
+  document.getElementById('sbPlanBadge').classList.add('show');
+  document.getElementById('sbPlanName').textContent = `PLANO ${plan.name}`;
+  document.getElementById('sbPlanSub').textContent  = plan.sub;
+
+  setTimeout(() => {
+    document.getElementById('itemsSection').scrollIntoView({behavior:'smooth', block:'start'});
+  }, 80);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER ITEMS
+// ═══════════════════════════════════════════════════════════════
+function renderItems(plan) {
+  let html = `
+    <div class="items-box-header">
+      <h3>Itens do Plano ${plan.name}</h3>
+      <span class="items-box-note">Preços mensais editáveis</span>
+    </div>`;
+
+  plan.categories.forEach(cat => {
+    html += `<div class="cat-block">
+      <div class="cat-title">
+        ${cat.title}
+        <div>
+          <button class="cat-toggle-btn" onclick="toggleCat('${cat.items.map(i=>i.id).join(',')}',true)">todos</button>
+          <button class="cat-toggle-btn" onclick="toggleCat('${cat.items.map(i=>i.id).join(',')}',false)">nenhum</button>
+        </div>
+      </div>`;
+    cat.items.forEach(item => {
+      const st = itemState[item.id];
+      const priceStr = st.price > 0 ? st.price.toString() : '';
+      html += `
+        <div class="item-row ${st.checked ? '' : 'unchecked'}" id="row_${item.id}">
+          <input class="item-check" type="checkbox" id="chk_${item.id}"
+            ${st.checked ? 'checked' : ''}
+            onchange="toggleItem('${item.id}',this.checked)">
+          <div class="item-name">
+            ${item.name}
+            ${item.note ? `<small>${item.note}</small>` : ''}
+          </div>
+          <div class="item-price-wrap">
+            <span class="price-prefix">R$</span>
+            <input class="item-price-input" type="number" id="price_${item.id}"
+              value="${priceStr}"
+              placeholder="${st.price === 0 ? 'Incluso' : '0'}"
+              min="0" step="50"
+              ${!st.checked ? 'disabled' : ''}
+              oninput="updateItemPrice('${item.id}',this.value)">
+          </div>
+        </div>`;
+    });
+    html += `</div>`;
+  });
+
+  document.getElementById('itemsBox').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TOGGLE HELPERS
+// ═══════════════════════════════════════════════════════════════
+function toggleItem(id, checked) {
+  itemState[id].checked = checked;
+  document.getElementById(`row_${id}`).classList.toggle('unchecked', !checked);
+  const priceEl = document.getElementById(`price_${id}`);
+  priceEl.disabled = !checked;
+  recalc();
+}
+
+function toggleCat(idsStr, checked) {
+  idsStr.split(',').forEach(id => {
+    if (itemState[id] !== undefined) {
+      itemState[id].checked = checked;
+      const chk = document.getElementById(`chk_${id}`);
+      const row = document.getElementById(`row_${id}`);
+      const priceEl = document.getElementById(`price_${id}`);
+      if (chk) chk.checked = checked;
+      if (row) row.classList.toggle('unchecked', !checked);
+      if (priceEl) priceEl.disabled = !checked;
+    }
+  });
+  recalc();
+}
+
+function updateItemPrice(id, val) {
+  itemState[id].price = parseFloat(val) || 0;
+  recalc();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RENDER ADDONS
+// ═══════════════════════════════════════════════════════════════
+function renderAddons() {
+  let html = '';
+  CATALOG.forEach(item => {
+    const qty = addonQty[item.id] || 0;
+    const priceLabel = item.priceMax
+      ? `R$ ${item.price.toLocaleString('pt-BR')} a R$ ${item.priceMax.toLocaleString('pt-BR')}`
+      : `R$ ${item.price.toLocaleString('pt-BR')}`;
+
+    html += `
+      <div class="addon-card ${qty > 0 ? 'active' : ''}" id="addoncard_${item.id}">
+        <div class="addon-info">
+          <div class="addon-name">${item.name}</div>
+          <div class="addon-note">${item.note}</div>
+          <div class="addon-price-label">${priceLabel}</div>
+        </div>
+        <div class="addon-qty">
+          <div class="qty-btn" onclick="changeQty('${item.id}',-1)">−</div>
+          <span class="qty-val" id="qty_${item.id}">${qty}</span>
+          <div class="qty-btn" onclick="changeQty('${item.id}',+1)">+</div>
+        </div>
+      </div>`;
+  });
+  document.getElementById('addonsGrid').innerHTML = html;
+}
+
+function changeQty(id, delta) {
+  const cur = addonQty[id] || 0;
+  addonQty[id] = Math.max(0, cur + delta);
+  const qEl = document.getElementById(`qty_${id}`);
+  const cEl = document.getElementById(`addoncard_${id}`);
+  if (qEl) qEl.textContent = addonQty[id];
+  if (cEl) cEl.classList.toggle('active', addonQty[id] > 0);
+  recalc();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RECALCULATE
+// ═══════════════════════════════════════════════════════════════
+function recalc() {
+  let planTotal = 0;
+  if (activePlan) {
+    Object.values(itemState).forEach(st => {
+      if (st.checked) planTotal += st.price;
+    });
+  }
+
+  let addonsTotal = 0;
+  CATALOG.forEach(item => {
+    addonsTotal += (addonQty[item.id] || 0) * item.price;
+  });
+
+  const monthly    = planTotal + addonsTotal;
+  const semestral  = planTotal * 6 + addonsTotal;
+
+  document.getElementById('totalMensal').textContent    = fmt(planTotal);
+  document.getElementById('totalSemestral').textContent = fmt(planTotal * 6);
+  document.getElementById('totalGeral').textContent     = fmt(monthly);
+
+  const semGeralEl = document.getElementById('totalGeralSem');
+  if (addonsTotal > 0) {
+    semGeralEl.textContent = `Sem semestral: ${fmt(semestral)}`;
+  } else {
+    semGeralEl.textContent = `Semestral: ${fmt(semestral)}`;
+  }
+
+  const addonsLine = document.getElementById('addonsLine');
+  if (addonsTotal > 0) {
+    addonsLine.style.display = 'block';
+    document.getElementById('totalAddons').textContent = fmt(addonsTotal);
+  } else {
+    addonsLine.style.display = 'none';
+  }
+
+  // note
+  document.getElementById('sbNote').textContent = addonsTotal > 0
+    ? '* Projetos avulsos são cobrados pontualmente, não mensalmente.'
+    : '';
+
+  renderSbItems(planTotal, addonsTotal);
+}
+
+function renderSbItems(planTotal, addonsTotal) {
+  if (!activePlan) return;
+  const plan = PLANS[activePlan];
+  let html = '';
+
+  plan.categories.forEach(cat => {
+    cat.items.forEach(item => {
+      const st = itemState[item.id];
+      if (st && st.checked && st.price > 0) {
+        html += `<div class="sb-item">
+          <span class="si-name">${item.name}</span>
+          <span class="si-val">${fmt(st.price)}</span>
+        </div>`;
+      }
+    });
+  });
+
+  CATALOG.forEach(item => {
+    const q = addonQty[item.id] || 0;
+    if (q > 0) {
+      html += `<div class="sb-item addon-line">
+        <span class="si-name">${item.name}${q>1?` ×${q}`:''}<span class="si-tag">avulso</span></span>
+        <span class="si-val">${fmt(item.price * q)}</span>
+      </div>`;
+    }
+  });
+
+  if (!html) html = '<div class="empty-msg">Nenhum item marcado</div>';
+  document.getElementById('sbItems').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// GENERATE / PRINT
+// ═══════════════════════════════════════════════════════════════
+function gerarOrcamento() {
+  buildPrintSummary();
+  window.print();
+}
+
+function buildPrintSummary() {
+  if (!activePlan) return;
+  const plan = PLANS[activePlan];
+  const client = document.getElementById('clientName').value || '—';
+  const resp   = document.getElementById('responsible').value || '—';
+  const obs    = document.getElementById('obs').value || '';
+  const valid  = document.getElementById('validity').value || '7 dias';
+  const date   = new Date().toLocaleDateString('pt-BR');
+
+  let planTotal = 0;
+  let itemsHtml = '';
+
+  plan.categories.forEach(cat => {
+    let catHtml = '';
+    cat.items.forEach(item => {
+      const st = itemState[item.id];
+      if (st && st.checked) {
+        planTotal += st.price;
+        catHtml += `<div class="ps-row">
+          <span>${item.name}</span>
+          <span>${st.price > 0 ? fmt(st.price) : 'Incluso'}</span>
+        </div>`;
+      }
+    });
+    if (catHtml) {
+      itemsHtml += `<div style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#555;margin:10px 0 4px">${cat.title}</div>`;
+      itemsHtml += catHtml;
+    }
+  });
+
+  let addonsTotal = 0;
+  let addonsHtml  = '';
+  CATALOG.forEach(item => {
+    const q = addonQty[item.id] || 0;
+    if (q > 0) {
+      const val = item.price * q;
+      addonsTotal += val;
+      addonsHtml += `<div class="ps-row">
+        <span>${item.name}${q>1?` (×${q})`:''} <em style="font-size:10px;color:#888">[avulso]</em></span>
+        <span>${fmt(val)}</span>
+      </div>`;
+    }
+  });
+
+  const monthly   = planTotal + addonsTotal;
+  const semestral = planTotal * 6 + addonsTotal;
+
+  document.getElementById('printSummary').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div>
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#555">Proposta Comercial</div>
+        <div style="font-size:22px;font-weight:900;color:#000">GRUPO LIMOEIRO</div>
+        <div style="font-size:11px;color:#555">Marketing, Design e Audiovisual</div>
+      </div>
+      <div style="text-align:right;font-size:11px;color:#555">
+        <div>Data: ${date}</div>
+        <div>Validade: ${valid}</div>
+        <div>Responsável: ${resp}</div>
+      </div>
+    </div>
+
+    <div style="background:#f5f5f5;border-radius:6px;padding:12px 16px;margin-bottom:16px">
+      <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#555">Cliente</div>
+      <div style="font-size:18px;font-weight:800">${client}</div>
+      ${obs ? `<div style="font-size:11px;color:#666;margin-top:4px">${obs}</div>` : ''}
+    </div>
+
+    <div style="background:#141d00;border:2px solid #C3E535;border-radius:6px;padding:10px 14px;margin-bottom:16px">
+      <div style="font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#888">Plano Selecionado</div>
+      <div style="font-size:20px;font-weight:900;color:#C3E535">PLANO ${plan.name}</div>
+      <div style="font-size:11px;color:#aaa">${plan.sub}</div>
+    </div>
+
+    <h2>Itens do Plano</h2>
+    ${itemsHtml}
+
+    ${addonsHtml ? `
+    <div style="margin-top:14px">
+      <div style="font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#555;margin-bottom:4px">Projetos Avulsos</div>
+      ${addonsHtml}
+    </div>` : ''}
+
+    <div class="ps-row ps-total" style="border-top:2px solid #000;margin-top:12px;padding-top:10px">
+      <strong>Total Mensal</strong>
+      <strong>${fmt(monthly)}</strong>
+    </div>
+    <div class="ps-row" style="font-size:13px;color:#555">
+      <span>Total Semestral (6×)</span>
+      <span>${fmt(semestral)}</span>
+    </div>
+
+    <div style="margin-top:16px;font-size:10px;color:#888;border-top:1px solid #ddd;padding-top:10px">
+      • Captações e ações fora de Franca e do horário comercial terão custos adicionais.<br>
+      • Projetos avulsos são cobrados pontualmente, não mensalmente.<br>
+      • Fora desta proposta: implantação de CRM / criação de Sites e LandingPages / pesquisas adicionais.
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════════════════════
+function resetAll() {
+  activePlan = null;
+  itemState  = {};
+  addonQty   = {};
+  ['start','gestao','supra'].forEach(k =>
+    document.getElementById('card-'+k).classList.remove('selected')
+  );
+  document.getElementById('itemsSection').style.display = 'none';
+  document.getElementById('sbPlanBadge').classList.remove('show');
+  document.getElementById('sbItems').innerHTML = '<div class="empty-msg">Selecione um plano para começar</div>';
+  document.getElementById('totalMensal').textContent    = 'R$ 0';
+  document.getElementById('totalSemestral').textContent = 'R$ 0';
+  document.getElementById('totalGeral').textContent     = 'R$ 0';
+  document.getElementById('totalGeralSem').textContent  = '';
+  document.getElementById('addonsLine').style.display   = 'none';
+  document.getElementById('sbNote').textContent         = '';
+  renderAddons();
+}
+
+// ═══════════════════════════════════════════════════════════════
+// UTILITIES
+// ═══════════════════════════════════════════════════════════════
+function fmt(val) {
+  return 'R$ ' + (val || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+</script>
+
+</body>
+</html>
