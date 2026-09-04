@@ -192,22 +192,11 @@ module.exports = async (req, res) => {
       addBackground(slide, key);
     });
 
-    // 2) slide divisor do plano
+    // 2) slide divisor do plano — arte original do template (não recriada),
+    // uma imagem por plano (Start/Gestão/Supra) extraída dos .pptx enviados.
+    const dividerKey = "divider_" + (data.planKey || "start");
     const divider = pptx.addSlide();
-    divider.background = { color: BLACK };
-    divider.addText("PLANO", {
-      x: 1.1, y: 2.7, w: 6, h: 0.6, fontFace: FONT_BOLD, fontSize: 20, color: GREEN, bold: true,
-    });
-    divider.addText(data.planName || "", {
-      x: 1.0, y: 3.1, w: 8, h: 1.3, fontFace: FONT_BOLD, fontSize: 60, bold: true, color: GREEN,
-    });
-    divider.addText(data.planSub || "", {
-      x: 6.6, y: 3.55, w: 6.2, h: 0.5, fontFace: FONT, fontSize: 15, color: "FFFFFF",
-    });
-    divider.addShape("triangle", {
-      x: 5.85, y: 3.35, w: 0.5, h: 0.5, rotate: 90,
-      fill: { color: BLACK }, line: { color: GREEN, width: 2 },
-    });
+    addBackground(divider, assets[dividerKey] ? dividerKey : "divider_start");
 
     // 3) slides de conteúdo (categorias + itens personalizados)
     const planTitle = `Plano ${data.planName || ""} Personalizado`;
