@@ -552,7 +552,8 @@
 
     <div class="sb-note" id="sbNote"></div>
 
-    <button class="btn btn-primary" onclick="gerarOrcamento()">⬇ Imprimir / Salvar PDF</button>
+    <button class="btn btn-primary" id="btnPptx" onclick="downloadProposalPptx()">⬇ Baixar Proposta (PPTX)</button>
+    <button class="btn btn-outline" onclick="gerarOrcamento()">🖨 Imprimir / Salvar PDF</button>
     <button class="btn btn-outline" onclick="resetAll()">↺ Limpar Tudo</button>
   </div>
 
@@ -1090,6 +1091,108 @@ function resetAll() {
 // ═══════════════════════════════════════════════════════════════
 function fmt(val) {
   return 'R$ ' + (val || 0).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+// ═══════════════════════════════════════════════════════════════
+// DOWNLOAD PPTX (proposta personalizada com as artes do Grupo Limoeiro)
+// ═══════════════════════════════════════════════════════════════
+const PPTX_ENDPOINT = '/api/generate-pptx';
+
+function downloadProposalPptx() {
+  if (!activePlan) {
+    alert('Selecione um plano antes de gerar a proposta.');
+    return;
+  }
+  const btn = document.getElementById('btnPptx');
+  const plan = PLANS[activePlan];
+  const client = document.getElementById('clientName').value.trim() || 'Cliente';
+  const responsavel = document.getElementById('responsible').value.trim();
+  const validity = document.getElementById('validity').value.trim() || '15 dias';
+  const obs = document.getElementById('obs').value.trim();
+
+  let planTotal = 0;
+  const categories = [];
+  plan.categories.forEach(cat => {
+    const items = [];
+    cat.items.forEach(item => {
+      const st = itemState[item.id];
+      if (st && st.checked) {
+        planTotal += st.price;
+        items.push({
+          name: item.name,
+          note: item.note || '',
+        });
+      }
+    });
+    if (items.length) categories.push({ title: cat.title, items });
+  });
+
+  let addonsTotal = 0;
+  const addons = [];
+  CATALOG.forEach(item => {
+    const q = addonQty[item.id] || 0;
+    if (q > 0) {
+      addonsTotal += item.price * q;
+      addons.push({
+        name: item.name + (q > 1 ? ` (×${q})` : ''),
+        note: item.note || '',
+      });
+    }
+  });
+
+  const data = {
+    cliente: client,
+    responsavel,
+    validity,
+    obs,
+    planKey: activePlan,
+    planName: plan.name,
+    planSub: plan.sub,
+    categories,
+    addons,
+    totalMensal: planTotal,
+    totalSemestral: planTotal * 6,
+    totalAddons: addonsTotal,
+    totalGeral: planTotal + addonsTotal,
+    dataStr: new Date().toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' }),
+  };
+
+  btn.disabled = true;
+  const oldLabel = btn.textContent;
+  btn.textContent = 'Gerando...';
+
+  fetch(PPTX_ENDPOINT, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+    .then(async (resp) => {
+      if (!resp.ok) {
+        let msg = 'Erro ao gerar o arquivo.';
+        try { const errJson = await resp.json(); msg = 'Erro ao gerar o arquivo: ' + (errJson.message || errJson.error || JSON.stringify(errJson)); } catch (e) {}
+        throw new Error(msg);
+      }
+      return resp.blob();
+    })
+    .then((blob) => {
+      const safeName = client.replace(/[\\/:*?"<>|]/g, '').trim() || 'Cliente';
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Grupo Limoeiro - ${safeName}.pptx`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      btn.disabled = false;
+      btn.textContent = oldLabel;
+    })
+    .catch((err) => {
+      console.error(err);
+      btn.disabled = false;
+      btn.textContent = oldLabel;
+      alert(err.message || 'Erro ao gerar o arquivo. Tente novamente.');
+    });
 }
 </script>
 

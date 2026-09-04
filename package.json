@@ -1,0 +1,9 @@
+{
+  "name": "precificador-grupo-limoeiro",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Precificador comercial do Grupo Limoeiro",
+  "dependencies": {
+    "pptxgenjs": "^3.12.0"
+  }
+}
