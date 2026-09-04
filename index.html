@@ -724,8 +724,10 @@ let addonQty   = {};   // id → qty
 // ═══════════════════════════════════════════════════════════════
 (function init() {
   const d = new Date();
-  document.getElementById('hdrDate').textContent =
-    d.toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+  const hdrDateEl = document.getElementById('hdrDate');
+  if (hdrDateEl) {
+    hdrDateEl.textContent = d.toLocaleDateString('pt-BR', {day:'2-digit', month:'long', year:'numeric'});
+  }
   renderAddons();
 })();
 
@@ -1096,9 +1098,8 @@ function fmt(val) {
 // ═══════════════════════════════════════════════════════════════
 // DOWNLOAD PPTX (proposta personalizada com as artes do Grupo Limoeiro)
 // ═══════════════════════════════════════════════════════════════
-const PPTX_ENDPOINT = '/api/generate-pptx';
-
 function downloadProposalPptx() {
+  const PPTX_ENDPOINT = '/api/generate-pptx';
   if (!activePlan) {
     alert('Selecione um plano antes de gerar a proposta.');
     return;
